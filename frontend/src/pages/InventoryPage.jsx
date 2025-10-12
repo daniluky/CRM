@@ -30,18 +30,29 @@ function InventoryPage() {
     try {
       setError('');
       const endpoint = type === 'arrival' ? inventoryApi.arrival :
-                      type === 'return' ? inventoryApi.return :
-                      inventoryApi.adjust;
+        type === 'return' ? inventoryApi.return :
+          inventoryApi.adjust;
 
-      const payload = {
-        barcode: selectedProduct.barcode,
-        qty: parseInt(modalData.qty),
-        note: modalData.note,
-        ...(type === 'adjust' && {
+      let payload;
+      if (type === 'adjust') {
+        payload = {
           productId: selectedProduct._id,
-          qtyDelta: parseInt(modalData.qty)
-        })
-      };
+          qtyDelta: parseInt(modalData.qty),
+          note: modalData.note || 'Ajuste de inventario'
+        };
+      } else if (type === 'arrival') {
+        payload = {
+          productId: selectedProduct._id,
+          qty: parseInt(modalData.qty),
+          note: modalData.note || 'Entrada de stock'
+        };
+      } else {
+        payload = {
+          productId: selectedProduct._id,
+          qty: parseInt(modalData.qty),
+          note: modalData.note || 'Devolución'
+        };
+      }
 
       await endpoint(payload);
       setSuccess('Operación realizada con éxito');
@@ -63,6 +74,22 @@ function InventoryPage() {
     setSelectedProduct(null);
     setModalType(null);
     setModalData({ qty: '', note: '' });
+  };
+
+  const handleDelete = async (product) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el producto "${product.name}"?`)) {
+      return;
+    }
+
+    try {
+      setError('');
+      await productsApi.delete(product._id);
+      setSuccess('Producto eliminado correctamente');
+      setTimeout(() => setSuccess(''), 3000);
+      loadProducts();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al eliminar el producto');
+    }
   };
 
   return (
@@ -87,7 +114,6 @@ function InventoryPage() {
             <th>Código</th>
             <th>Producto</th>
             <th>Stock</th>
-            <th>Ubicación</th>
             <th>P.Venta</th>
             <th>Acciones</th>
           </tr>
@@ -98,20 +124,25 @@ function InventoryPage() {
               <td>{product.barcode}</td>
               <td>{product.name}</td>
               <td>{product.stock_qty}</td>
-              <td>{product.location || '-'}</td>
               <td>{product.sale_price.toFixed(2)} €</td>
               <td style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => openModal('arrival', product)}
                 >
                   +Stock
                 </button>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => openModal('adjust', product)}
                 >
                   Ajustar
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleDelete(product)}
+                >
+                  Eliminar
                 </button>
               </td>
             </tr>
@@ -134,11 +165,11 @@ function InventoryPage() {
           <div className="card" style={{ width: '400px' }}>
             <h2>
               {modalType === 'arrival' ? 'Entrada de Stock' :
-               modalType === 'adjust' ? 'Ajuste de Stock' :
-               'Devolución'}
+                modalType === 'adjust' ? 'Ajuste de Stock' :
+                  'Devolución'}
             </h2>
             <p>Producto: {selectedProduct.name}</p>
-            
+
             <div className="form-group">
               <label>
                 {modalType === 'adjust' ? 'Ajuste' : 'Cantidad'}
@@ -146,7 +177,7 @@ function InventoryPage() {
               <input
                 type="number"
                 value={modalData.qty}
-                onChange={e => setModalData({...modalData, qty: e.target.value})}
+                onChange={e => setModalData({ ...modalData, qty: e.target.value })}
                 placeholder={modalType === 'adjust' ? "Positivo suma, negativo resta" : ""}
               />
             </div>
@@ -156,7 +187,7 @@ function InventoryPage() {
               <input
                 type="text"
                 value={modalData.note}
-                onChange={e => setModalData({...modalData, note: e.target.value})}
+                onChange={e => setModalData({ ...modalData, note: e.target.value })}
               />
             </div>
 
@@ -164,7 +195,7 @@ function InventoryPage() {
               <button className="btn" onClick={closeModal}>
                 Cancelar
               </button>
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={() => handleMovement(modalType)}
               >

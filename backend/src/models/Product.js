@@ -29,12 +29,11 @@ const productSchema = new mongoose.Schema({
   stock_qty: {
     type: Number,
     default: 0
-  },
-  location: String
+  }
 }, { timestamps: true });
 
 // Middleware para calcular precio de venta automático
-productSchema.pre('save', function(next) {
+productSchema.pre('save', function (next) {
   if (this.price_mode === 'auto') {
     this.sale_price = computeSalePrice(this.base_price);
   }

@@ -9,6 +9,8 @@ const api = axios.create({
   },
 });
 
+export const API_BASE_URL = API_URL;
+
 export const productsApi = {
   create: (data) => api.post('/products', data),
   list: (params) => api.get('/products', { params }),

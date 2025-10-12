@@ -8,7 +8,6 @@ exports.exportToCsv = async (data, filename) => {
       { id: 'barcode', title: 'CÓDIGO' },
       { id: 'name', title: 'NOMBRE' },
       { id: 'stock_qty', title: 'STOCK' },
-      { id: 'location', title: 'UBICACIÓN' },
       { id: 'sale_price', title: 'PRECIO VENTA' }
     ]
   });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { inventoryApi } from '../api/client';
+import { inventoryApi, API_BASE_URL } from '../api/client';
 import ProductRow from '../components/ProductRow';
 
 function LowStockPage() {
@@ -27,7 +27,7 @@ function LowStockPage() {
       setSuccess('CSV generado con éxito');
       // Descargar el archivo
       const link = document.createElement('a');
-      link.href = `${import.meta.env.VITE_API_URL}/exports/${data.filename}`;
+      link.href = `${API_BASE_URL}/exports/${data.filename}`;
       link.download = data.filename;
       document.body.appendChild(link);
       link.click();
@@ -59,7 +59,6 @@ function LowStockPage() {
               <th>Código</th>
               <th>Producto</th>
               <th>Stock</th>
-              <th>Ubicación</th>
               <th>P.Venta</th>
             </tr>
           </thead>

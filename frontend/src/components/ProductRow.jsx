@@ -10,8 +10,13 @@ function ProductRow({ product, onDelete, onQuantityChange }) {
           <input
             type="number"
             min="1"
-            value={product.qty}
-            onChange={(e) => onQuantityChange(product, parseInt(e.target.value))}
+            value={product.qty || 1}
+            onChange={(e) => {
+              const newValue = parseInt(e.target.value) || 1;
+              if (newValue > 0) {
+                onQuantityChange(product, newValue);
+              }
+            }}
             style={{ width: '80px' }}
           />
         ) : (
@@ -21,7 +26,7 @@ function ProductRow({ product, onDelete, onQuantityChange }) {
       <td>{product.sale_price.toFixed(2)} €</td>
       {onDelete && (
         <td>
-          <button 
+          <button
             onClick={() => onDelete(product)}
             className="btn btn-danger"
           >

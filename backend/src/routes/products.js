@@ -16,8 +16,7 @@ const productSchema = Joi.object({
     is: 'manual',
     then: Joi.required()
   }),
-  initial_stock: Joi.number().integer().min(0),
-  location: Joi.string().allow('', null)
+  initial_stock: Joi.number().integer().min(0)
 });
 
 // Crear producto
@@ -27,17 +26,17 @@ router.post('/', async (req, res, next) => {
     if (error) throw error;
 
     const { initial_stock, ...productData } = value;
-    
+
     if (productData.price_mode === 'auto') {
       productData.sale_price = computeSalePrice(productData.base_price);
     }
 
     const product = new Product(productData);
-    
+
     if (initial_stock) {
       product.stock_qty = initial_stock;
     }
-    
+
     await product.save();
 
     if (initial_stock) {

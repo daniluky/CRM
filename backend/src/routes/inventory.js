@@ -56,32 +56,54 @@ router.post('/sale', async (req, res, next) => {
     const { error, value } = saleSchema.validate(req.body);
     if (error) throw error;
 
-    const session = await Product.startSession();
-    session.startTransaction();
+    const qtyByBarcode = value.lines.reduce((acc, line) => {
+      acc[line.barcode] = (acc[line.barcode] || 0) + line.qty;
+      return acc;
+    }, {});
+
+    const uniqueBarcodes = Object.keys(qtyByBarcode);
+    const products = await Product.find({ barcode: { $in: uniqueBarcodes } });
+    const productMap = new Map(products.map(product => [product.barcode, product]));
+
+    for (const barcode of uniqueBarcodes) {
+      if (!productMap.has(barcode)) {
+        throw new Error(`Producto con código ${barcode} no encontrado`);
+      }
+
+      const product = productMap.get(barcode);
+      if (product.stock_qty < qtyByBarcode[barcode]) {
+        throw new Error('STOCK_NEGATIVE');
+      }
+    }
+
+    const rollback = [];
 
     try {
-      const lines = [];
-      for (const line of value.lines) {
-        const product = await Product.findOne({ barcode: line.barcode }).session(session);
-        if (!product) {
-          throw new Error(`Producto con código ${line.barcode} no encontrado`);
-        }
+      for (const barcode of uniqueBarcodes) {
+        const totalQty = qtyByBarcode[barcode];
+        const updated = await Product.findOneAndUpdate(
+          { barcode, stock_qty: { $gte: totalQty } },
+          { $inc: { stock_qty: -totalQty } },
+          { new: true }
+        );
 
-        if (product.stock_qty < line.qty) {
+        if (!updated) {
           throw new Error('STOCK_NEGATIVE');
         }
 
-        product.stock_qty -= line.qty;
-        await product.save({ session });
+        rollback.push({ barcode, qty: totalQty });
+      }
 
-        await StockMovement.create([{
-          productId: product._id,
-          type: 'sale',
-          qty: -line.qty,
-          note: 'Venta'
-        }], { session });
+      await StockMovement.insertMany(value.lines.map(line => ({
+        productId: productMap.get(line.barcode)._id,
+        type: 'sale',
+        qty: -line.qty,
+        note: 'Venta'
+      })));
 
-        lines.push({
+      const responseLines = value.lines.map(line => {
+        const product = productMap.get(line.barcode);
+        return {
           product: {
             id: product._id,
             name: product.name,
@@ -89,19 +111,22 @@ router.post('/sale', async (req, res, next) => {
           },
           qty: line.qty,
           total: product.sale_price * line.qty
-        });
-      }
-
-      await session.commitTransaction();
-      res.status(201).json({
-        lines,
-        total: lines.reduce((sum, line) => sum + line.total, 0)
+        };
       });
-    } catch (err) {
-      await session.abortTransaction();
-      throw err;
-    } finally {
-      session.endSession();
+
+      res.status(201).json({
+        lines: responseLines,
+        total: responseLines.reduce((sum, line) => sum + line.total, 0)
+      });
+    } catch (operationError) {
+      if (rollback.length) {
+        await Promise.all(
+          rollback.map(entry =>
+            Product.updateOne({ barcode: entry.barcode }, { $inc: { stock_qty: entry.qty } })
+          )
+        );
+      }
+      throw operationError;
     }
   } catch (err) {
     next(err);
