@@ -1,0 +1,18 @@
+# Node / JS
+node_modules/
+**/node_modules/
+dist/
+build/
+.out/
+.cache/
+.npm/
+.yarn/
+pnpm-lock.yaml
+
+# Vite / React
+.vite/
+coverage/
+
+# Env / OS
+.env*
+.DS_Store
