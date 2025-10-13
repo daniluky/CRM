@@ -15,4 +15,10 @@ coverage/
 
 # Env / OS
 .env*
+.DS_Storenode_modules/
+**/node_modules/
+dist/
+build/
+.vite/
 .DS_Store
+.env*
