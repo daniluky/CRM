@@ -162,7 +162,7 @@ function NewProductPage() {
               value={formData.name}
               onChange={handleChange}
               onKeyDown={handleNameKeyDown}
-              placeholder="Ej: Tarjeta SIM prepago"
+              placeholder="Ej: Cocacola"
               required
             />
           </div>
