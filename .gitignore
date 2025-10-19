@@ -12,13 +12,9 @@ pnpm-lock.yaml
 # Vite / React
 .vite/
 coverage/
+frontend/dist/
 
 # Env / OS
 .env*
-.DS_Storenode_modules/
-**/node_modules/
-dist/
-build/
-.vite/
 .DS_Store
-.env*
+Agents.md
