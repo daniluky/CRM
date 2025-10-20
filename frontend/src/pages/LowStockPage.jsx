@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { inventoryApi, API_BASE_URL } from '../api/client';
 import ProductRow from '../components/ProductRow';
 
+// LowStockPage lista productos críticos y permite exportar a CSV
 function LowStockPage() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // loadLowStock se ejecuta al montar la vista para poblarla
   useEffect(() => {
     loadLowStock();
   }, []);
 
+  // loadLowStock obtiene los productos con stock bajo desde la API
   const loadLowStock = async () => {
     try {
       const { data } = await inventoryApi.getLowStock();
@@ -20,6 +23,7 @@ function LowStockPage() {
     }
   };
 
+  // handleExport solicita y descarga el listado de bajo stock en CSV
   const handleExport = async () => {
     try {
       setError('');

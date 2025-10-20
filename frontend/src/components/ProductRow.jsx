@@ -1,5 +1,6 @@
 import React from 'react';
 
+// ProductRow muestra la información de un producto en tablas reutilizables
 function ProductRow({ product, onDelete, onQuantityChange }) {
   return (
     <tr>
@@ -12,7 +13,7 @@ function ProductRow({ product, onDelete, onQuantityChange }) {
             min="1"
             value={product.qty || 1}
             onChange={(e) => {
-              const newValue = parseInt(e.target.value) || 1;
+              const newValue = parseInt(e.target.value, 10) || 1;
               if (newValue > 0) {
                 onQuantityChange(product, newValue);
               }

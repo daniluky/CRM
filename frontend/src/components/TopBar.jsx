@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
+// TopBar muestra la navegación principal entre las vistas de la app
 function TopBar() {
   return (
     <header className="top-bar">

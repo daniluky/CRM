@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { productsApi, inventoryApi } from '../api/client';
 import SaleTicket from '../components/SaleTicket';
 
+// SalesPage coordina la venta rápida con escaneo y control de carrito
 function SalesPage() {
   const [barcode, setBarcode] = useState('');
   const [lines, setLines] = useState([]);
@@ -10,21 +11,25 @@ function SalesPage() {
   const [completedSale, setCompletedSale] = useState(null);
   const inputRef = useRef(null);
 
+  // Mantiene el foco en el lector de códigos tras montar o completar venta
   useEffect(() => {
     // Focus barcode input on mount and after each sale
     inputRef.current?.focus();
   }, [completedSale]);
 
+  // total calcula el importe acumulado del carrito
   const total = useMemo(
     () => lines.reduce((sum, line) => sum + (line.product.sale_price * line.qty), 0),
     [lines]
   );
 
+  // totalItems cuenta la cantidad total de unidades en el carrito
   const totalItems = useMemo(
     () => lines.reduce((sum, line) => sum + line.qty, 0),
     [lines]
   );
 
+  // handleSubmit agrega productos escaneados al carrito
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedBarcode = barcode.trim();
@@ -55,6 +60,7 @@ function SalesPage() {
     }
   };
 
+  // handleQuantityChange ajusta la cantidad de un producto en el carrito
   const handleQuantityChange = (productToUpdate, newQty) => {
     if (newQty < 1) return;
     setCompletedSale(null);
@@ -67,6 +73,7 @@ function SalesPage() {
     ));
   };
 
+  // handleDelete elimina una línea del carrito
   const handleDelete = (productToRemove) => {
     setCompletedSale(null);
     setLines(prevLines => prevLines.filter(
@@ -74,6 +81,7 @@ function SalesPage() {
     ));
   };
 
+  // handleClearCart reinicia el carrito y mensajes asociados
   const handleClearCart = () => {
     setCompletedSale(null);
     setError('');
@@ -82,6 +90,7 @@ function SalesPage() {
     inputRef.current?.focus();
   };
 
+  // handleCompleteSale envía la venta al backend y muestra el ticket
   const handleCompleteSale = async () => {
     if (!lines.length) return;
 

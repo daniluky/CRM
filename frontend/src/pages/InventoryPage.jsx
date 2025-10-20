@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { productsApi, inventoryApi } from '../api/client';
-import ProductRow from '../components/ProductRow';
 
+// InventoryPage administra el listado y las operaciones sobre el stock
 function InventoryPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
@@ -11,10 +11,12 @@ function InventoryPage() {
   const [modalType, setModalType] = useState(null);
   const [modalData, setModalData] = useState({ qty: '', note: '' });
 
+  // Recarga productos cada vez que cambia el término de búsqueda
   useEffect(() => {
     loadProducts();
   }, [search]);
 
+  // loadProducts obtiene los productos del backend con el filtro actual
   const loadProducts = async () => {
     try {
       const { data } = await productsApi.list({ query: search });
@@ -24,6 +26,7 @@ function InventoryPage() {
     }
   };
 
+  // handleMovement ejecuta entradas, ajustes o devoluciones usando el modal
   const handleMovement = async (type) => {
     if (!selectedProduct || !modalData.qty) return;
 
@@ -37,19 +40,19 @@ function InventoryPage() {
       if (type === 'adjust') {
         payload = {
           productId: selectedProduct._id,
-          qtyDelta: parseInt(modalData.qty),
+          qtyDelta: parseInt(modalData.qty, 10),
           note: modalData.note || 'Ajuste de inventario'
         };
       } else if (type === 'arrival') {
         payload = {
           productId: selectedProduct._id,
-          qty: parseInt(modalData.qty),
+          qty: parseInt(modalData.qty, 10),
           note: modalData.note || 'Entrada de stock'
         };
       } else {
         payload = {
           productId: selectedProduct._id,
-          qty: parseInt(modalData.qty),
+          qty: parseInt(modalData.qty, 10),
           note: modalData.note || 'Devolución'
         };
       }
@@ -64,18 +67,21 @@ function InventoryPage() {
     }
   };
 
+  // openModal prepara los datos necesarios para operar sobre un producto
   const openModal = (type, product) => {
     setSelectedProduct(product);
     setModalType(type);
     setModalData({ qty: '', note: '' });
   };
 
+  // closeModal restablece el estado del modal sin aplicar cambios
   const closeModal = () => {
     setSelectedProduct(null);
     setModalType(null);
     setModalData({ qty: '', note: '' });
   };
 
+  // handleDelete confirma y elimina un producto definitivamente
   const handleDelete = async (product) => {
     if (!window.confirm(`¿Estás seguro de que deseas eliminar el producto "${product.name}"?`)) {
       return;

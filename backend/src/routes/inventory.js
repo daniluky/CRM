@@ -20,7 +20,7 @@ const saleSchema = Joi.object({
   })).min(1).required()
 });
 
-// Entrada de mercancía
+// POST /inventory/arrival - aumenta stock de un producto y registra el movimiento
 router.post('/arrival', async (req, res, next) => {
   try {
     const { error, value } = movementSchema.validate(req.body);
@@ -50,7 +50,7 @@ router.post('/arrival', async (req, res, next) => {
   }
 });
 
-// Venta
+// POST /inventory/sale - descuenta stock en lote y devuelve resumen de venta
 router.post('/sale', async (req, res, next) => {
   try {
     const { error, value } = saleSchema.validate(req.body);
@@ -133,7 +133,7 @@ router.post('/sale', async (req, res, next) => {
   }
 });
 
-// Devolución
+// POST /inventory/return - repone stock de un producto devuelto y lo registra
 router.post('/return', async (req, res, next) => {
   try {
     const { error, value } = movementSchema.validate(req.body);
@@ -163,7 +163,7 @@ router.post('/return', async (req, res, next) => {
   }
 });
 
-// Ajuste
+// POST /inventory/adjust - aplica ajustes manuales de stock con una nota obligatoria
 router.post('/adjust', async (req, res, next) => {
   try {
     const { error, value } = Joi.object({
@@ -199,7 +199,7 @@ router.post('/adjust', async (req, res, next) => {
   }
 });
 
-// Lista de bajo stock
+// GET /inventory/low-stock - devuelve productos críticos o genera CSV bajo demanda
 router.get('/low-stock', async (req, res, next) => {
   try {
     const products = await Product.find({ stock_qty: { $lte: 2 } })

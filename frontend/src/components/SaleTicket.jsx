@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 
+// SaleTicket renderiza el comprobante final con líneas y total de la venta
 function SaleTicket({ lines, total }) {
+  // formattedDate fija la hora de emisión del ticket
   const formattedDate = useMemo(() => new Date().toLocaleString(), []);
 
   return (

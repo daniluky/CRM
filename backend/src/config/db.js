@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// connectDB establece la conexión con MongoDB y aborta el proceso si falla
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI);

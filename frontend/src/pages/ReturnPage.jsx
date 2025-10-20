@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { productsApi, inventoryApi } from '../api/client';
 
+// ReturnPage gestiona devoluciones escaneando el producto
 function ReturnPage() {
   const [barcode, setBarcode] = useState('');
   const [qty, setQty] = useState(1);
@@ -9,10 +10,12 @@ function ReturnPage() {
   const [product, setProduct] = useState(null);
   const inputRef = useRef(null);
 
+  // Autoenfoque del campo de código al montar la vista
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  // handleSubmit busca el producto asociado al código ingresado
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!barcode) return;
@@ -29,6 +32,7 @@ function ReturnPage() {
     }
   };
 
+  // handleReturn envía la devolución al backend y limpia el formulario
   const handleReturn = async () => {
     if (!product || qty < 1) return;
 
@@ -81,7 +85,7 @@ function ReturnPage() {
               type="number"
               min="1"
               value={qty}
-              onChange={e => setQty(parseInt(e.target.value))}
+              onChange={e => setQty(parseInt(e.target.value, 10))}
             />
           </div>
 

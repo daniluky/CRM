@@ -7,6 +7,7 @@ import InventoryPage from './pages/InventoryPage';
 import LowStockPage from './pages/LowStockPage';
 import ReturnPage from './pages/ReturnPage';
 
+// App define el layout principal y configura las rutas del front
 function App() {
   return (
     <div className="app">

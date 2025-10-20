@@ -1,3 +1,4 @@
+// errorHandler centraliza las respuestas ante errores conocidos y genéricos
 const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 

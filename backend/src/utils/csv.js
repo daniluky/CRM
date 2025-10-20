@@ -1,6 +1,7 @@
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const path = require('path');
 
+// exportToCsv genera un archivo CSV en la carpeta exports y devuelve su ruta
 exports.exportToCsv = async (data, filename) => {
   const csvWriter = createCsvWriter({
     path: path.join(__dirname, '..', '..', 'exports', filename),

@@ -5,7 +5,7 @@ const StockMovement = require('../models/StockMovement');
 const { computeSalePrice } = require('../utils/pricing');
 const Joi = require('joi');
 
-// Validación para crear/actualizar producto
+// productSchema valida la carga útil de creación/actualización de productos
 const productSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().allow('', null),
@@ -19,7 +19,7 @@ const productSchema = Joi.object({
   initial_stock: Joi.number().integer().min(0)
 });
 
-// Crear producto
+// POST /api/products - crea un producto nuevo y registra stock inicial opcional
 router.post('/', async (req, res, next) => {
   try {
     const { error, value } = productSchema.validate(req.body);
@@ -54,7 +54,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// Listar productos
+// GET /api/products - devuelve productos filtrados por búsqueda o bajo stock
 router.get('/', async (req, res, next) => {
   try {
     const { query, low_stock } = req.query;
@@ -78,7 +78,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// Obtener producto
+// GET /api/products/:id - obtiene un producto por su identificador
 router.get('/:id', async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -91,7 +91,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// Actualizar producto
+// PUT /api/products/:id - actualiza datos del producto y recalcula precios si aplica
 router.put('/:id', async (req, res, next) => {
   try {
     const { error, value } = productSchema.validate(req.body);
@@ -115,7 +115,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// Eliminar producto
+// DELETE /api/products/:id - elimina el producto indicado
 router.delete('/:id', async (req, res, next) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);

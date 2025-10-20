@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productsApi } from '../api/client';
 
+// NewProductPage gestiona el alta rápida de productos con cálculo de precios
 function NewProductPage() {
   const navigate = useNavigate();
   const nameInputRef = useRef(null);
@@ -18,23 +19,28 @@ function NewProductPage() {
     initial_stock: ''
   });
 
+  // basePrice convierte el valor ingresado en número seguro para cálculos
   const basePrice = useMemo(
     () => (formData.base_price ? parseFloat(formData.base_price) : 0),
     [formData.base_price]
   );
+  // salePrice obtiene el precio de venta numérico desde el formulario
   const salePrice = useMemo(
     () => (formData.sale_price ? parseFloat(formData.sale_price) : 0),
     [formData.sale_price]
   );
+  // marginAmount calcula el margen absoluto entre base y venta
   const marginAmount = useMemo(() => {
     if (!basePrice || !salePrice) return null;
     return salePrice - basePrice;
   }, [basePrice, salePrice]);
+  // marginPercent expresa el margen como porcentaje respecto al precio base
   const marginPercent = useMemo(() => {
     if (!basePrice || !salePrice || marginAmount === null) return null;
     return (marginAmount / basePrice) * 100;
   }, [basePrice, salePrice, marginAmount]);
 
+  // Mantiene activo el aviso de éxito durante unos segundos
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
@@ -44,6 +50,7 @@ function NewProductPage() {
     }
   }, [success]);
 
+  // handleChange sincroniza cada campo del formulario y recalcula precios
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -73,6 +80,7 @@ function NewProductPage() {
     });
   };
 
+  // handleBarcodeKeyDown mueve el foco tras escanear el código de barras
   const handleBarcodeKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -80,6 +88,7 @@ function NewProductPage() {
     }
   };
 
+  // handleNameKeyDown salta al precio base al confirmar el nombre
   const handleNameKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -87,6 +96,7 @@ function NewProductPage() {
     }
   };
 
+  // handleSubmit envía el nuevo producto y limpia el formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
